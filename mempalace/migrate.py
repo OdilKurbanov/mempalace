@@ -33,13 +33,15 @@ def extract_drawers_from_sqlite(db_path: str) -> list:
     conn.row_factory = sqlite3.Row
 
     # Get all embedding IDs and their documents
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT e.embedding_id,
                MAX(CASE WHEN em.key = 'chroma:document' THEN em.string_value END) as document
         FROM embeddings e
         JOIN embedding_metadata em ON em.id = e.id
         GROUP BY e.embedding_id
-    """).fetchall()
+    """
+    ).fetchall()
 
     drawers = []
     for row in rows:
@@ -207,7 +209,7 @@ def migrate(palace_path: str, dry_run: bool = False, confirm: bool = False):
     temp_palace = tempfile.mkdtemp(prefix="mempalace_migrate_")
     print(f"  Creating fresh palace in {temp_palace}...")
     client = chromadb.PersistentClient(path=temp_palace)
-    col = client.get_or_create_collection("mempalace_drawers")
+    col = client.get_or_create_collection("mempalace_drawers", metadata={"hnsw:space": "cosine"})
 
     # Re-import in batches
     batch_size = 500

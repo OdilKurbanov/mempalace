@@ -27,7 +27,8 @@ def test_project_mining():
         os.makedirs(project_root / "backend")
 
         write_file(
-            project_root / "backend" / "app.py", "def main():\n    print('hello world')\n" * 20
+            project_root / "backend" / "app.py",
+            "def main():\n    print('hello world')\n" * 20,
         )
         with open(project_root / "mempalace.yaml", "w") as f:
             yaml.dump(
@@ -215,7 +216,9 @@ def test_file_already_mined_check_mtime():
         palace_path = os.path.join(tmpdir, "palace")
         os.makedirs(palace_path)
         client = chromadb.PersistentClient(path=palace_path)
-        col = client.get_or_create_collection("mempalace_drawers")
+        col = client.get_or_create_collection(
+            "mempalace_drawers", metadata={"hnsw:space": "cosine"}
+        )
 
         test_file = os.path.join(tmpdir, "test.txt")
         with open(test_file, "w") as f:

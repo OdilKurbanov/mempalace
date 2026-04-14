@@ -31,7 +31,10 @@ def _get_collection(palace_path, create=False):
 
     client = chromadb.PersistentClient(path=palace_path)
     if create:
-        return client, client.get_or_create_collection("mempalace_drawers")
+        return (
+            client,
+            client.get_or_create_collection("mempalace_drawers", metadata={"hnsw:space": "cosine"}),
+        )
     return client, client.get_collection("mempalace_drawers")
 
 
@@ -319,7 +322,7 @@ class TestSearchTool:
         _patch_mcp_server(monkeypatch, config, kg)
         from mempalace import mcp_server
 
-        monkeypatch.setattr(mcp_server, "_get_collection", lambda *args, **kwargs: pytest.fail())
+        monkeypatch.setattr(mcp_server, "_get_collection", lambda: pytest.fail())
 
         result = mcp_server.tool_list_rooms(wing="../etc/passwd")
         assert "error" in result
@@ -328,7 +331,7 @@ class TestSearchTool:
         _patch_mcp_server(monkeypatch, config, kg)
         from mempalace import mcp_server
 
-        monkeypatch.setattr(mcp_server, "search_memories", lambda *args, **kwargs: pytest.fail())
+        monkeypatch.setattr(mcp_server, "search_memories", lambda: pytest.fail())
 
         result = mcp_server.tool_search(query="JWT", room="../backend")
         assert "error" in result
@@ -337,7 +340,7 @@ class TestSearchTool:
         _patch_mcp_server(monkeypatch, config, kg)
         from mempalace import mcp_server
 
-        monkeypatch.setattr(mcp_server, "_get_collection", lambda *args, **kwargs: pytest.fail())
+        monkeypatch.setattr(mcp_server, "_get_collection", lambda: pytest.fail())
 
         result = mcp_server.tool_list_drawers(wing="../notes")
         assert "error" in result
@@ -346,7 +349,7 @@ class TestSearchTool:
         _patch_mcp_server(monkeypatch, config, kg)
         from mempalace import mcp_server
 
-        monkeypatch.setattr(mcp_server, "_get_collection", lambda *args, **kwargs: pytest.fail())
+        monkeypatch.setattr(mcp_server, "_get_collection", lambda: pytest.fail())
 
         result = mcp_server.tool_find_tunnels(wing_a="../project")
         assert "error" in result
